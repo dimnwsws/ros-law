@@ -1,0 +1,444 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}История - Молодые правозащитники{% endblock %}
+
+{% block breadcrumbs %}
+<span class="current-page">История</span>
+{% endblock %}
+
+{% block content %}
+<section class="history-section">
+    <div class="history-container">
+        <div class="history-tabs">
+            <button class="tab-btn active" data-tab="logs">Активность</button>
+            <button class="tab-btn" data-tab="revisions">История редакций</button>
+        </div>
+        
+        <div class="tab-content">
+            <!-- Logs Tab -->
+            <div id="logs-tab" class="tab-pane active">
+                <div class="history-controls">
+                    <div class="search-box">
+                        <input type="text" id="logs-search" placeholder="Поиск по логам...">
+                        <button class="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                    
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label for="logs-date-from">От:</label>
+                            <input type="date" id="logs-date-from">
+                        </div>
+                        <div class="filter-group">
+                            <label for="logs-date-to">До:</label>
+                            <input type="date" id="logs-date-to">
+                        </div>
+                        <div class="filter-group">
+                            <label for="logs-user">Пользователь:</label>
+                            <select id="logs-user">
+                                <option value="">Все пользователи</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.last_name }} {{ user.first_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="logs-action">Действие:</label>
+                            <select id="logs-action">
+                                <option value="">Все действия</option>
+                                <option value="login">Вход в систему</option>
+                                <option value="logout">Выход из системы</option>
+                                <option value="create">Создание материала</option>
+                                <option value="edit">Редактирование материала</option>
+                                <option value="delete">Удаление материала</option>
+                                <option value="review">Проверка материала</option>
+                                <option value="user_add">Добавление пользователя</option>
+                                <option value="user_edit">Редактирование пользователя</option>
+                                <option value="user_block">Блокировка пользователя</option>
+                            </select>
+                        </div>
+                        <button id="apply-logs-filters" class="btn btn-primary">Применить</button>
+                        <button id="reset-logs-filters" class="btn btn-outline">Сбросить</button>
+                    </div>
+                </div>
+                
+                <div class="logs-table-wrapper">
+                    <table class="logs-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Дата и время</th>
+                                <th>Пользователь</th>
+                                <th>Действие</th>
+                                <th>Детали</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in logs %}
+                            <tr>
+                                <td>{{ log.id }}</td>
+                                <td>{{ log.created_at|date:"d.m.Y H:i:s" }}</td>
+                                <td>
+                                    <a href="{% url 'user_profile' id=log.user.id %}">
+                                        {{ log.user.last_name }} {{ log.user.first_name }}
+                                    </a>
+                                </td>
+                                <td>{{ log.get_action_display }}</td>
+                                <td>
+                                    <button class="details-btn" data-details="{{ log.action_details|escapejs }}">
+                                        <i class="fas fa-info-circle"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="empty-message">Логи отсутствуют</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    {% if logs.has_previous %}
+                    <a href="?page=1" class="pagination-btn"><i class="fas fa-angle-double-left"></i></a>
+                    <a href="?page={{ logs.previous_page_number }}" class="pagination-btn"><i class="fas fa-angle-left"></i></a>
+                    {% endif %}
+                    
+                    <span class="current-page">
+                        Страница {{ logs.number }} из {{ logs.paginator.num_pages }}
+                    </span>
+                    
+                    {% if logs.has_next %}
+                    <a href="?page={{ logs.next_page_number }}" class="pagination-btn"><i class="fas fa-angle-right"></i></a>
+                    <a href="?page={{ logs.paginator.num_pages }}" class="pagination-btn"><i class="fas fa-angle-double-right"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Revisions Tab -->
+            <div id="revisions-tab" class="tab-pane">
+                <div class="history-controls">
+                    <div class="search-box">
+                        <input type="text" id="revisions-search" placeholder="Поиск по редакциям...">
+                        <button class="search-btn"><i class="fas fa-search"></i></button>
+                    </div>
+                    
+                    <div class="filters">
+                        <div class="filter-group">
+                            <label for="revisions-date-from">От:</label>
+                            <input type="date" id="revisions-date-from">
+                        </div>
+                        <div class="filter-group">
+                            <label for="revisions-date-to">До:</label>
+                            <input type="date" id="revisions-date-to">
+                        </div>
+                        <div class="filter-group">
+                            <label for="revisions-author">Автор:</label>
+                            <select id="revisions-author">
+                                <option value="">Все авторы</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.last_name }} {{ user.first_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="revisions-editor">Редактор:</label>
+                            <select id="revisions-editor">
+                                <option value="">Все редакторы</option>
+                                {% for user in users %}
+                                <option value="{{ user.id }}">{{ user.last_name }} {{ user.first_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="revisions-material-type">Тип материала:</label>
+                            <select id="revisions-material-type">
+                                <option value="">Все типы</option>
+                                <option value="chapter">Глава</option>
+                                <option value="section">Раздел</option>
+                                <option value="subsection">Подраздел</option>
+                                <option value="qa">Вопрос-ответ</option>
+                            </select>
+                        </div>
+                        <button id="apply-revisions-filters" class="btn btn-primary">Применить</button>
+                        <button id="reset-revisions-filters" class="btn btn-outline">Сбросить</button>
+                    </div>
+                </div>
+                
+                <div class="revisions-table-wrapper">
+                    <table class="revisions-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Код материала</th>
+                                <th>Код редакции</th>
+                                <th>Тип</th>
+                                <th>Название</th>
+                                <th>Автор</th>
+                                <th>Редактор</th>
+                                <th>Дата редакции</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for revision in revisions %}
+                            <tr>
+                                <td>{{ revision.id }}</td>
+                                <td>
+                                    <a href="{% url 'view_material' type=revision.material_type id=revision.material_id %}">
+                                        {{ revision.material_code }}
+                                    </a>
+                                </td>
+                                <td>{{ revision.revision_code }}</td>
+                                <td>{{ revision.get_material_type_display }}</td>
+                                <td>{{ revision.material_title }}</td>
+                                <td>
+                                    <a href="{% url 'user_profile' id=revision.author.id %}">
+                                        {{ revision.author.last_name }} {{ revision.author.first_name }}
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{% url 'user_profile' id=revision.editor.id %}">
+                                        {{ revision.editor.last_name }} {{ revision.editor.first_name }}
+                                    </a>
+                                </td>
+                                <td>{{ revision.created_at|date:"d.m.Y H:i" }}</td>
+                                <td>
+                                    <span class="status-badge status-{{ revision.status }}">
+                                        {{ revision.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <a href="{% url 'view_revision' id=revision.id %}" class="action-btn view-btn" title="Просмотреть">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button class="action-btn compare-btn" data-revision-id="{{ revision.id }}" title="Сравнить с предыдущей">
+                                            <i class="fas fa-code-branch"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="10" class="empty-message">Редакции отсутствуют</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination">
+                    {% if revisions.has_previous %}
+                    <a href="?tab=revisions&page=1" class="pagination-btn"><i class="fas fa-angle-double-left"></i></a>
+                    <a href="?tab=revisions&page={{ revisions.previous_page_number }}" class="pagination-btn"><i class="fas fa-angle-left"></i></a>
+                    {% endif %}
+                    
+                    <span class="current-page">
+                        Страница {{ revisions.number }} из {{ revisions.paginator.num_pages }}
+                    </span>
+                    
+                    {% if revisions.has_next %}
+                    <a href="?tab=revisions&page={{ revisions.next_page_number }}" class="pagination-btn"><i class="fas fa-angle-right"></i></a>
+                    <a href="?tab=revisions&page={{ revisions.paginator.num_pages }}" class="pagination-btn"><i class="fas fa-angle-double-right"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Details Modal -->
+    <div id="details-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Детали действия</h2>
+                <button class="close-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <pre id="details-content"></pre>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Compare Modal -->
+    <div id="compare-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Сравнение редакций</h2>
+                <button class="close-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="comparison-container">
+                    <div class="comparison-header">
+                        <div class="comparison-side">
+                            <h3>Предыдущая версия</h3>
+                            <p class="revision-info" id="previous-revision-info"></p>
+                        </div>
+                        <div class="comparison-side">
+                            <h3>Текущая версия</h3>
+                            <p class="revision-info" id="current-revision-info"></p>
+                        </div>
+                    </div>
+                    <div class="comparison-content" id="comparison-content">
+                        <!-- Will be filled dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab switching
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                
+                // Update active tab button
+                tabBtns.forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update active tab pane
+                tabPanes.forEach(pane => pane.classList.remove('active'));
+                document.getElementById(`${tabId}-tab`).classList.add('active');
+                
+                // Update URL parameter
+                const url = new URL(window.location);
+                url.searchParams.set('tab', tabId);
+                window.history.pushState({}, '', url);
+            });
+        });
+        
+        // Check for tab parameter in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab');
+        if (tabParam) {
+            const tabBtn = document.querySelector(`.tab-btn[data-tab="${tabParam}"]`);
+            if (tabBtn) {
+                tabBtn.click();
+            }
+        }
+        
+        // Details modal
+        const detailsBtns = document.querySelectorAll('.details-btn');
+        const detailsModal = document.getElementById('details-modal');
+        const detailsContent = document.getElementById('details-content');
+        
+        detailsBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const details = JSON.parse(this.dataset.details || '{}');
+                
+                // Format JSON for display
+                detailsContent.textContent = JSON.stringify(details, null, 2);
+                
+                // Show modal
+                detailsModal.classList.add('visible');
+            });
+        });
+        
+        // Compare modal
+        const compareBtns = document.querySelectorAll('.compare-btn');
+        const compareModal = document.getElementById('compare-modal');
+        
+        compareBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const revisionId = this.dataset.revisionId;
+                
+                // In a real implementation, you would fetch the comparison data via AJAX
+                // For this demo, we'll just show a placeholder
+                document.getElementById('previous-revision-info').textContent = 'Редакция #1 (01.01.2025-01-001)';
+                document.getElementById('current-revision-info').textContent = 'Редакция #2 (01.01.2025-01-002)';
+                
+                const comparisonContent = document.getElementById('comparison-content');
+                comparisonContent.innerHTML = `
+                    <div class="comparison-row">
+                        <div class="comparison-side comparison-removed">
+                            <p>Старое содержимое</p>
+                        </div>
+                        <div class="comparison-side comparison-added">
+                            <p>Новое содержимое</p>
+                        </div>
+                    </div>
+                    <div class="comparison-row">
+                        <div class="comparison-side">
+                            <p>Неизмененное содержимое</p>
+                        </div>
+                        <div class="comparison-side">
+                            <p>Неизмененное содержимое</p>
+                        </div>
+                    </div>
+                `;
+                
+                // Show modal
+                compareModal.classList.add('visible');
+            });
+        });
+        
+        // Close modals
+        const closeBtns = document.querySelectorAll('.close-btn');
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const modal = this.closest('.modal');
+                modal.classList.remove('visible');
+            });
+        });
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.classList.remove('visible');
+                }
+            });
+        });
+        
+        // Filter reset buttons
+        document.getElementById('reset-logs-filters').addEventListener('click', function() {
+            const form = this.closest('.filters');
+            form.querySelectorAll('input, select').forEach(input => {
+                input.value = '';
+            });
+        });
+        
+        document.getElementById('reset-revisions-filters').addEventListener('click', function() {
+            const form = this.closest('.filters');
+            form.querySelectorAll('input, select').forEach(input => {
+                input.value = '';
+            });
+        });
+        
+        // Search functionality for logs
+        const logsSearch = document.getElementById('logs-search');
+        logsSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.logs-table tbody tr');
+            
+            rows.forEach(row => {
+                const textContent = row.textContent.toLowerCase();
+                row.style.display = textContent.includes(searchTerm) ? '' : 'none';
+            });
+        });
+        
+        // Search functionality for revisions
+        const revisionsSearch = document.getElementById('revisions-search');
+        revisionsSearch.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const rows = document.querySelectorAll('.revisions-table tbody tr');
+            
+            rows.forEach(row => {
+                const textContent = row.textContent.toLowerCase();
+                row.style.display = textContent.includes(searchTerm) ? '' : 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}

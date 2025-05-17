@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Молодые правозащитники{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header (2.1.1) -->
+    <header class="header">
+        <div class="container header-container">
+            <!-- Logo -->
+            <a href="{% url 'main' %}" class="logo">
+                <img src="{% static 'img/logo.svg' %}" alt="Молодые правозащитники">
+            </a>
+            
+            <!-- Main Navigation -->
+            <nav class="main-nav">
+                <ul class="nav-list">
+                    <li><a href="{% url 'registry' %}" class="nav-link">Реестр</a></li>
+                    <li><a href="{% url 'create' %}" class="nav-link">Создать</a></li>
+                    {% if user.role == 'moderator' or user.role == 'curator' or user.role == 'admin' %}
+                    <li><a href="{% url 'control' %}" class="nav-link">Контроль</a></li>
+                    {% endif %}
+                    {% if user.role == 'curator' or user.role == 'admin' %}
+                    <li><a href="{% url 'people' %}" class="nav-link">Люди</a></li>
+                    {% endif %}
+                    {% if user.role != 'volunteer' and user.role != 'blocked' %}
+                    <li><a href="{% url 'materials' %}" class="nav-link">Материалы</a></li>
+                    {% endif %}
+                    {% if user.role == 'admin' %}
+                    <li><a href="{% url 'history' %}" class="nav-link">История</a></li>
+                    <li><a href="{% url 'system' %}" class="nav-link">Система</a></li>
+                    {% endif %}
+                    <li><a href="{% url 'guide' %}" class="nav-link">Гид</a></li>
+                </ul>
+            </nav>
+            
+            <!-- User Actions -->
+            <div class="user-actions">
+                {% if user.is_authenticated and user.role != 'blocked' %}
+                <a href="{% url 'notifications' %}" class="icon-btn notifications">
+                    <i class="fas fa-bell"></i>
+                    {% if notifications_count > 0 %}
+                    <span class="notification-badge">{{ notifications_count }}</span>
+                    {% endif %}
+                </a>
+                <button class="icon-btn search-toggle">
+                    <i class="fas fa-search"></i>
+                </button>
+                <button class="icon-btn theme-toggle">
+                    <i class="fas fa-sun"></i>
+                </button>
+                <button class="icon-btn accessibility-toggle">
+                    <i class="fas fa-universal-access"></i>
+                </button>
+                <div class="language-selector">
+                    <button class="icon-btn language-toggle">
+                        <i class="fas fa-globe"></i>
+                    </button>
+                    <div class="language-dropdown">
+                        <a href="?lang=ru" class="language-option {% if current_lang == 'ru' %}active{% endif %}">RU</a>
+                        <a href="?lang=en" class="language-option {% if current_lang == 'en' %}active{% endif %}">EN</a>
+                    </div>
+                </div>
+                <div class="profile-dropdown">
+                    <button class="icon-btn profile-toggle">
+                        <i class="fas fa-user-circle"></i>
+                    </button>
+                    <div class="dropdown-menu">
+                        <a href="{% url 'profile' %}" class="dropdown-item">Профиль</a>
+                        <a href="{% url 'logout' %}" class="dropdown-item">Выйти</a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary">Войти</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+    
+    <!-- Breadcrumbs (2.1.2) -->
+    <div class="breadcrumbs">
+        <div class="container">
+            {% block breadcrumbs %}
+            <span class="current-page">Главная страница</span>
+            {% endblock %}
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    
+    <!-- Footer (2.1.5) -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <img src="{% static 'img/logo-full.svg' %}" alt="Всероссийский студенческий союз" class="footer-logo">
+                    <img src="{% static 'img/logo-text.svg' %}" alt="Молодые правозащитники" class="footer-logo">
+                </div>
+                <div class="footer-social">
+                    <a href="https://youtube.com" class="social-link"><i class="fab fa-youtube"></i></a>
+                    <a href="https://telegram.org" class="social-link"><i class="fab fa-telegram"></i></a>
+                    <a href="https://vk.com" class="social-link"><i class="fab fa-vk"></i></a>
+                </div>
+                <div class="footer-contacts">
+                    <h3>Контакты</h3>
+                    <p>8 800 555 35 35</p>
+                    <p>info@rosstudent.ru</p>
+                    <p>Улица Пушкина, дом Колотушкина</p>
+                </div>
+                <div class="footer-about">
+                    <h3>О нас</h3>
+                    <p>Общероссийская молодёжная общественная организация "ВСЕРОССИЙСКИЙ СТУДЕНЧЕСКИЙ СОЮЗ"</p>
+                    <p>ИНН 7722311600</p>
+                    <p>ОГРН 1117799001473</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

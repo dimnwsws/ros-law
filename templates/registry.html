@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Реестр - Молодые правозащитники{% endblock %}
+
+{% block breadcrumbs %}
+<span class="current-page">Реестр</span>
+{% endblock %}
+
+{% block content %}
+<section class="registry-section">
+    <h1 class="section-title">Реестр материалов</h1>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; flex: 1;">
+            <input type="text" placeholder="Поиск по реестру..." style="flex-grow: 1; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px 0 0 4px; outline: none;">
+            <button style="background-color: #df5522; color: white; border: none; padding: 0 16px; border-radius: 0 4px 4px 0; cursor: pointer;">🔍</button>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <button style="padding: 8px 16px; background: none; border: 1px solid #bbbbbb; border-radius: 4px; cursor: pointer;">Раскрыть все</button>
+            <button style="padding: 8px 16px; background: none; border: 1px solid #bbbbbb; border-radius: 4px; cursor: pointer;">Скрыть все</button>
+        </div>
+    </div>
+    
+    <div style="background-color: white; border: 1px solid #ddd; border-radius: 8px; padding: 20px;">
+        <!-- Demo Hierarchy -->
+        <ul style="list-style: none; padding: 0; margin: 0;">
+            <li style="margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; padding: 8px 12px; background-color: #f5f5f5; border-radius: 4px;">
+                    <span style="margin-right: 8px; font-weight: 500; color: #666;">1.</span>
+                    <a href="#" style="flex-grow: 1; color: #000; text-decoration: none;">Гражданское право</a>
+                    <button style="background: none; border: none; cursor: pointer; color: #666;">⯆</button>
+                </div>
+                
+                <ul style="list-style: none; padding-left: 20px; margin-top: 8px; display: none;">
+                    <li style="margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; padding: 8px 12px; background-color: #f5f5f5; border-radius: 4px;">
+                            <span style="margin-right: 8px; font-weight: 500; color: #666;">1.1.</span>
+                            <a href="#" style="flex-grow: 1; color: #000; text-decoration: none;">Договоры</a>
+                            <button style="background: none; border: none; cursor: pointer; color: #666;">⯆</button>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+            
+            <li style="margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; padding: 8px 12px; background-color: #f5f5f5; border-radius: 4px;">
+                    <span style="margin-right: 8px; font-weight: 500; color: #666;">2.</span>
+                    <a href="#" style="flex-grow: 1; color: #000; text-decoration: none;">Семейное право</a>
+                    <button style="background: none; border: none; cursor: pointer; color: #666;">⯆</button>
+                </div>
+            </li>
+            
+            <li style="margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; padding: 8px 12px; background-color: #f5f5f5; border-radius: 4px;">
+                    <span style="margin-right: 8px; font-weight: 500; color: #666;">3.</span>
+                    <a href="#" style="flex-grow: 1; color: #000; text-decoration: none;">Трудовое право</a>
+                    <button style="background: none; border: none; cursor: pointer; color: #666;">⯆</button>
+                </div>
+            </li>
+        </ul>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Toggle for registry items
+        const toggleButtons = document.querySelectorAll('.registry-section button');
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const listItem = this.closest('li');
+                const subtree = listItem.querySelector('ul');
+                
+                if (subtree) {
+                    if (subtree.style.display === 'none' || !subtree.style.display) {
+                        subtree.style.display = 'block';
+                        this.innerHTML = '⯅';
+                    } else {
+                        subtree.style.display = 'none';
+                        this.innerHTML = '⯆';
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
